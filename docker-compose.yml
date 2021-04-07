@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  web2:
+    build: .
+    command: ../pools_init.sh
+    environment:
+        APP_LAUNCH_SITE: docker
+    container_name: 'pools'
+    restart: always
+    volumes:
+      - .:/code
+    expose:
+       - 8084
+
+  nginx2:
+    container_name: 'srv2'
+    restart: always
+    image: nginx:latest
+    depends_on: 
+      - web2
+    ports:
+      - 84:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d #папка для конфигурации nginx
+      - ./static:/srv/www/static/ #статика приложения
+      - ./media:/srv/www/media/ #загружнные картинки приложения
+      - ./logs:/srv/www/logs/ # удаляется папка в контейнере и заменяется на папку их хоста, логи nginx

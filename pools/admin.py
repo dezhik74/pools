@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Poll, Variant, Answer
+from .models import Poll, Variant, Answer, Person
 # Register your models here.
 
 
@@ -10,7 +10,7 @@ class VariantInLine(admin.StackedInline):
 
 @admin.register(Poll)
 class PollAdmin (admin.ModelAdmin):
-    list_display = ('name', 'start_date', 'end_date', 'question_text', 'attribute')
+    list_display = ('name', 'start_date', 'end_date', 'question_text', 'attribute', 'pk')
     inlines = [VariantInLine]
 
 
@@ -21,4 +21,9 @@ class VariantAdmin (admin.ModelAdmin):
 
 @admin.register(Answer)
 class AnswerAdmin (admin.ModelAdmin):
+    list_display = ('answer_text', 'usr', 'poll')
+
+
+@admin.register(Person)
+class PersonAdmin (admin.ModelAdmin):
     pass
