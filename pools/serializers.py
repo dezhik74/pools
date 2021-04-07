@@ -16,23 +16,43 @@ class VariantSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class AnswerSerializer(serializers.ModelSerializer):
-
-    # the_poll = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    # the_poll = PollSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = Answer
-        fields = ['answer_text', 'poll']
-        depth = 1
-
-
 class PersonDetailSerializer(serializers.ModelSerializer):
-
-    answers = AnswerSerializer(many=True, read_only=True)
 
     class Meta:
         model = Person
         fields = ['id', 'answers']
+        depth = 2
+
+
+class AnswerSerializer(serializers.ModelSerializer):
+
+    # usr = PersonDetailSerializer(many=False)
+    # poll = PollSerializer(many=False)
+
+    class Meta:
+        model = Answer
+        fields = ['answer_text']
+        # depth = 1
+
+    def save(self, poll, usr):
+        new_poll = Poll.objects.get(pk=poll)
+        try:
+            person = Person.objects.get(pk=usr)
+        except Person.DoesNotExist:
+            person = Person(person_name=str(self.kwargs["id"]))
+            person.save()
+        print(self.validated_data['answer_text'])
+        a = Answer(answer_text=self.validated_data['answer_text'])
+        a.poll = new_poll
+        a.usr = person
+        a.save()
+
+
+    def create(self, validated_data):
+        print('Новый объект')
+        print(validated_data)
+        return Answer(validated_data)
+
+
 
 

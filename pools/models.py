@@ -40,7 +40,7 @@ class Person (models.Model):
 
 class Answer (models.Model):
     usr = models.ForeignKey('Person', on_delete=models.CASCADE, related_name='answers')
-    poll = models.ForeignKey('Poll', on_delete=models.CASCADE, related_name='poll')
+    poll = models.ForeignKey('Poll', on_delete=models.CASCADE, related_name='answers')
     answer_text = models.CharField(max_length=500, verbose_name='Ответ')
 
     def __str__(self):

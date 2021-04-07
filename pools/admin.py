@@ -6,6 +6,7 @@ from .models import Poll, Variant, Answer, Person
 class VariantInLine(admin.StackedInline):
     model = Variant
     extra = 2
+    fields = ['variant', 'poll']
 
 
 @admin.register(Poll)
@@ -27,3 +28,4 @@ class AnswerAdmin (admin.ModelAdmin):
 @admin.register(Person)
 class PersonAdmin (admin.ModelAdmin):
     pass
+
