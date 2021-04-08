@@ -1,2 +1,6 @@
 /venv
 /.idea
+/static
+/media
+/logs
+__pycache__

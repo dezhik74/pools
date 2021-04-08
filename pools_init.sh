@@ -18,5 +18,5 @@ echo "Starting server..."
 #python manage.py runserver 0.0.0.0:8084
 
 echo "Gunicorn server"
-gunicorn -b 0.0.0.0:8084 delivery.wsgi:application
+gunicorn -b 0.0.0.0:8084 config.wsgi:application
 

@@ -3,7 +3,7 @@ version: '3'
 services:
   web2:
     build: .
-    command: ../pools_init.sh
+    command: ./pools_init.sh
     environment:
         APP_LAUNCH_SITE: docker
     container_name: 'pools'
