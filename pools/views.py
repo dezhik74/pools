@@ -1,78 +1,53 @@
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.views import APIView
-from .models import Poll, Variant, Person, Answer
-from .serializers import PollSerializer, PersonDetailSerializer, AnswerSerializer
+from .models import Poll, QVariant, Person, Answer, PollResult
+from .serializers import PollListSerializer, PollDetailSerializer, PersonDetailSerializer, PollResultSerializer, \
+    PollResultCreateSerializer
 import datetime
 from rest_framework.response import Response
 
 
-class PollList (generics.ListAPIView):
+
+class PollsList (generics.ListAPIView):
+    """Вывод всех опросов"""
     queryset = Poll.objects.all()
-    serializer_class = PollSerializer
+    serializer_class = PollListSerializer
 
 
 class ActivePolls(generics.ListAPIView):
+    """Вывод только активных опросов"""
     queryset = Poll.objects.filter(end_date__gte=datetime.date.today())
-    serializer_class = PollSerializer
+    serializer_class = PollListSerializer
+
+
+class PollDetailView(generics.RetrieveAPIView):
+    """Вывод одного опроса со списком вопросов и вариантов"""
+    queryset = Poll.objects.all()
+    serializer_class = PollDetailSerializer
 
 
 class PersonView (generics.RetrieveAPIView):
+    """Вывод результатов всех опросов (с ответами), в которых участвовал юзер"""
     queryset = Person.objects.all()
     serializer_class = PersonDetailSerializer
 
 
-class PollView(generics.RetrieveAPIView):
-    queryset = Poll.objects.all()
-    serializer_class = PollSerializer
+class CreatePollResultView(APIView):
+    """Создание результатов опроса. Если id пользователя нет, то создается новый пользователь"""
 
-
-class CreateAnswer(APIView):
-
-    def post(self, request, poll, usr, format=None):
-        # {"answer_text": "еуые21"}
-        print(request.data)
-        print(poll)
-        print(usr)
-        # data = {"answer_text": "еуые21"}
+    def post(self, request, format=None):
         data = request.data
+        usr_pk = data['usr']
         try:
-            new_poll = Poll.objects.get(pk=poll)
-        except Poll.DoesNotExist:
-            print('Неправильный полл')
-            return Response('poll does not exist', status=status.HTTP_400_BAD_REQUEST)
-        serializer = AnswerSerializer(data=data)
+            Person.objects.get(pk=usr_pk)
+        except Person.DoesNotExist:
+            Person.objects.create(pk=usr_pk, person_name=f'Generated {usr_pk}')
+        serializer = PollResultCreateSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(poll, usr)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class CreateAnswer(generics.CreateAPIView):
-#     queryset = Answer.objects.all()
-#     serializer_class = AnswerSerializer
-
-    # def perform_create(self, serializer):
-    #     print(f'тут poll {self.kwargs["poll"]} id {self.kwargs["id"]}')
-    #     try:
-    #         person = Person.objects.get(pk=self.kwargs["id"])
-    #     except Person.DoesNotExist:
-    #         person = Person(person_name=str(self.kwargs["id"]))
-    #         person.save()
-    #     try:
-    #         poll = Poll.objects.get(pk=self.kwargs["poll"])
-    #     except Poll.DoesNotExist:
-    #         print('Неправильный полл')
-    #         print(Response(status=status.HTTP_400_BAD_REQUEST))
-    #         return Response(status=status.HTTP_400_BAD_REQUEST, exception=True)
-    #     if serializer.is_valid():
-    #         # print ("правильно", serializer.data)
-    #         # print(person)
-    #         # print(poll)
-    #         a = Answer(answer_text=serializer.data['answer_text'])
-    #         a.poll = poll
-    #         a.usr = person
-    #         a.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 
